@@ -60,6 +60,45 @@ func (ts *TradingSession) IsNewSession(prev time.Time, next time.Time) bool {
 }
 
 //=============================================================================
+
+func (ts *TradingSession) Granularity() int {
+	g05 := true
+	g15 := true
+	g60 := true
+
+	for _, s := range ts.Slots {
+		openMin := s.Open.Minute()
+		closeMin := s.Close.Minute()
+
+		if openMin != 0 || closeMin != 0 {
+			g60 = false
+		}
+
+		if openMin%15 != 0 || closeMin%15 != 0 {
+			g15 = false
+		}
+
+		if openMin%5 != 0 || closeMin%5 != 0 {
+			g05 = false
+		}
+	}
+
+	if g60 {
+		return 60
+	}
+
+	if g15 {
+		return 15
+	}
+
+	if g05 {
+		return 5
+	}
+
+	return 1
+}
+
+//=============================================================================
 //===
 //=== TradingSlot
 //===

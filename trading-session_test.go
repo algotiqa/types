@@ -31,16 +31,40 @@ import (
 
 //=============================================================================
 
+var ts = &TradingSession{
+	Slots: []*TradingSlot{
+		{Day: 0, Open: Time(1700), Close: Time(1600), EndSession: true},  //Sun 2026-03-15
+		{Day: 1, Open: Time(1700), Close: Time(1600), EndSession: true},  //Mon 2026-03-16
+		{Day: 2, Open: Time(1700), Close: Time(1000), EndSession: false}, //Tue 2026-03-17
+		{Day: 3, Open: Time(1100), Close: Time(1500), EndSession: true},  //Wed 2026-03-18
+		{Day: 4, Open: Time(1745), Close: Time(1950), EndSession: true},  //Thu 2026-03-19
+	},
+}
+
+var ts60m = &TradingSession{
+	Slots: []*TradingSlot{
+		{Day: 0, Open: Time(1700), Close: Time(1600), EndSession: true},  //Sun 2026-03-15
+		{Day: 1, Open: Time(1700), Close: Time(1600), EndSession: true},  //Mon 2026-03-16
+		{Day: 2, Open: Time(1700), Close: Time(1000), EndSession: false}, //Tue 2026-03-17
+	},
+}
+
+var ts15m = &TradingSession{
+	Slots: []*TradingSlot{
+		{Day: 0, Open: Time(1715), Close: Time(1645), EndSession: true}, //Sun 2026-03-15
+		{Day: 1, Open: Time(1745), Close: Time(1600), EndSession: true}, //Mon 2026-03-16
+	},
+}
+
+var ts1m = &TradingSession{
+	Slots: []*TradingSlot{
+		{Day: 0, Open: Time(1716), Close: Time(1645), EndSession: true}, //Sun 2026-03-15
+	},
+}
+
+//=============================================================================
+
 func TestNewSession(t *testing.T) {
-	ts := TradingSession{
-		Slots: []*TradingSlot{
-			{Day: 0, Open: Time(1700), Close: Time(1600), EndSession: true},  //Sun 2026-03-15
-			{Day: 1, Open: Time(1700), Close: Time(1600), EndSession: true},  //Mon 2026-03-16
-			{Day: 2, Open: Time(1700), Close: Time(1000), EndSession: false}, //Tue 2026-03-17
-			{Day: 3, Open: Time(1100), Close: Time(1500), EndSession: true},  //Wed 2026-03-18
-			{Day: 4, Open: Time(1745), Close: Time(1950), EndSession: true},  //Thu 2026-03-19
-		},
-	}
 
 	//--- No hole at all
 
@@ -81,8 +105,29 @@ func TestNewSession(t *testing.T) {
 
 //=============================================================================
 
+func TestGranularity(t *testing.T) {
+	granularity(t, ts, 5)
+	granularity(t, ts60m, 60)
+	granularity(t, ts15m, 15)
+	granularity(t, ts1m, 1)
+}
+
+//=============================================================================
+//===
+//=== Private functions
+//===
+//=============================================================================
+
 func date(y, m, d, hh, mm int) time.Time {
 	return time.Date(y, time.Month(m), d, hh, mm, 00, 0, time.UTC)
+}
+
+//=============================================================================
+
+func granularity(t *testing.T, ts *TradingSession, expected int) {
+	if ts.Granularity() != expected {
+		t.Errorf("Granularity failed. Expected %v", expected)
+	}
 }
 
 //=============================================================================
