@@ -130,6 +130,25 @@ func (t Time) Sub(time Time) Time {
 }
 
 //=============================================================================
+
+func (t Time) Before(time Time) bool {
+	h := time.Hour() - t.Hour()
+	m := time.Minute() - t.Minute()
+
+	if h > 0 {
+		return true
+	}
+
+	if h < 0 {
+		return false
+	}
+
+	//--- Same hours, check minutes
+
+	return m > 0
+}
+
+//=============================================================================
 //===
 //=== General functions
 //===

@@ -24,9 +24,7 @@ THE SOFTWARE.
 
 package types
 
-import (
-	"time"
-)
+import "time"
 
 //=============================================================================
 //===
@@ -39,15 +37,22 @@ type TradingSession struct {
 }
 
 //=============================================================================
+//=== IsNewSession time must be in data product's timezone
 
-func (ts *TradingSession) IsStartOfSession(t time.Time, timeframe int) bool {
-	h, m, _ := t.Clock()
-	tim := NewTime(h, m).AddMinutes(-timeframe)
-	dow := int(t.Weekday())
+func (ts *TradingSession) IsNewSession(prev time.Time, next time.Time) bool {
+	ph, pm, _ := prev.Clock()
+	prevTime := NewTime(ph, pm)
+	nh, nm, _ := next.Clock()
+	nextTime := NewTime(nh, nm)
+	dow := int(prev.Weekday())
 
 	for _, s := range ts.Slots {
-		if s.isStartOfSession(dow, tim) {
-			return true
+		if s.Day == dow && s.EndSession {
+			if prevTime.Before(s.Close) || prevTime == s.Close {
+				if s.Close.Before(nextTime) || nextTime.Before(prevTime) {
+					return true
+				}
+			}
 		}
 	}
 
@@ -65,16 +70,6 @@ type TradingSlot struct {
 	Open       Time `json:"open"`
 	Close      Time `json:"close"`
 	EndSession bool `json:"end"`
-}
-
-//=============================================================================
-
-func (ts *TradingSlot) isStartOfSession(dow int, t Time) bool {
-	if dow != ts.Day {
-		return false
-	}
-
-	return ts.Open == t
 }
 
 //=============================================================================
