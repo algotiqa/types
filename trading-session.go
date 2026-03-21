@@ -37,26 +37,17 @@ type TradingSession struct {
 }
 
 //=============================================================================
-//=== IsNewSession time must be in data product's timezone
+//=== CrossSections time must be in data product's timezone
 
-func (ts *TradingSession) IsNewSession(prev time.Time, next time.Time) bool {
-	ph, pm, _ := prev.Clock()
-	prevTime := NewTime(ph, pm)
-	nh, nm, _ := next.Clock()
-	nextTime := NewTime(nh, nm)
-	dow := int(prev.Weekday())
+func (ts *TradingSession) CrossSessions(prev time.Time, next time.Time) bool {
+	return ts.crossSlots(prev, next, true)
+}
 
-	for _, s := range ts.Slots {
-		if s.Day == dow && s.EndSession {
-			if prevTime.Before(s.Close) || prevTime == s.Close {
-				if s.Close.Before(nextTime) || nextTime.Before(prevTime) {
-					return true
-				}
-			}
-		}
-	}
+//=============================================================================
+//=== CrossSlots time must be in data product's timezone
 
-	return false
+func (ts *TradingSession) CrossSlots(prev time.Time, next time.Time) bool {
+	return ts.crossSlots(prev, next, false)
 }
 
 //=============================================================================
@@ -99,6 +90,27 @@ func (ts *TradingSession) Granularity() int {
 }
 
 //=============================================================================
+
+func (ts *TradingSession) crossSlots(prev time.Time, next time.Time, endSession bool) bool {
+	ph, pm, _ := prev.Clock()
+	prevTime := NewTime(ph, pm)
+	prevDow := int(prev.Weekday())
+	nh, nm, _ := next.Clock()
+	nextTime := NewTime(nh, nm)
+	nextDow := int(next.Weekday())
+
+	for _, s := range ts.Slots {
+		if s.IsInside(prevDow, prevTime) && (!endSession || s.EndSession) {
+			if !s.IsInside(nextDow, nextTime) {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+//=============================================================================
 //===
 //=== TradingSlot
 //===
@@ -109,6 +121,22 @@ type TradingSlot struct {
 	Open       Time `json:"open"`
 	Close      Time `json:"close"`
 	EndSession bool `json:"end"`
+}
+
+//=============================================================================
+
+func (s *TradingSlot) IsInside(dow int, t Time) bool {
+	if s.Open < s.Close {
+		if s.Day == dow {
+			return s.Open < t && t <= s.Close
+		}
+	}
+
+	if s.Open > s.Close {
+		return (s.Day == dow && s.Open < t) || (dow == s.Day+1 && t <= s.Close)
+	}
+
+	return false
 }
 
 //=============================================================================

@@ -108,20 +108,20 @@ func TestBeforeTime(t *testing.T) {
 	t1 := Time(1025)
 	t2 := Time(1055)
 
-	if !t1.Before(t2) {
+	if !(t1 < t2) {
 		t.Errorf("Before time failed. Dates %v and %v", t1, t2)
 	}
 
 	t1 = Time(1159)
 	t2 = Time(921)
 
-	if t1.Before(t2) {
+	if t1 < t2 {
 		t.Errorf("Before time failed. Dates %v and %v", t1, t2)
 	}
 
 	t1 = Time(1234)
 
-	if t1.Before(t1) {
+	if t1 < t1 {
 		t.Errorf("Before time failed. Dates %v and %v", t1, t1)
 	}
 }

@@ -62,6 +62,13 @@ var ts1m = &TradingSession{
 	},
 }
 
+var tsAnomalous = &TradingSession{
+	Slots: []*TradingSlot{
+		{Day: 0, Open: Time(1700), Close: Time(1600), EndSession: true}, //Sun 2026-03-15
+		{Day: 2, Open: Time(2300), Close: Time(1600), EndSession: true}, //Mon 2026-03-16
+	},
+}
+
 //=============================================================================
 
 func TestNewSession(t *testing.T) {
@@ -71,7 +78,7 @@ func TestNewSession(t *testing.T) {
 	t1 := date(2026, 3, 15, 19, 03) //Sun
 	t2 := date(2026, 3, 15, 21, 59)
 
-	if ts.IsNewSession(t1, t2) {
+	if ts.CrossSessions(t1, t2) {
 		t.Errorf("NewSession failed. Dates %v and %v", t1, t2)
 	}
 
@@ -80,7 +87,7 @@ func TestNewSession(t *testing.T) {
 	t1 = date(2026, 3, 16, 16, 00) //Mon
 	t2 = date(2026, 3, 16, 17, 01)
 
-	if !ts.IsNewSession(t1, t2) {
+	if !ts.CrossSessions(t1, t2) {
 		t.Errorf("NewSession failed. Dates %v and %v", t1, t2)
 	}
 
@@ -89,7 +96,7 @@ func TestNewSession(t *testing.T) {
 	t1 = date(2026, 3, 18, 9, 15) //Wed
 	t2 = date(2026, 3, 18, 12, 5)
 
-	if ts.IsNewSession(t1, t2) {
+	if ts.CrossSessions(t1, t2) {
 		t.Errorf("NewSession failed. Dates %v and %v", t1, t2)
 	}
 
@@ -98,7 +105,16 @@ func TestNewSession(t *testing.T) {
 	t1 = date(2026, 3, 20, 19, 50) //Fri
 	t2 = date(2026, 3, 22, 17, 5)
 
-	if ts.IsNewSession(t1, t2) {
+	if ts.CrossSessions(t1, t2) {
+		t.Errorf("NewSession failed. Dates %v and %v", t1, t2)
+	}
+
+	//--- Real session end (anomalous)
+
+	t1 = date(2026, 3, 16, 16, 00) //Mon
+	t2 = date(2026, 3, 16, 17, 01)
+
+	if !tsAnomalous.CrossSessions(t1, t2) {
 		t.Errorf("NewSession failed. Dates %v and %v", t1, t2)
 	}
 }
