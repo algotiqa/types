@@ -24,7 +24,11 @@ THE SOFTWARE.
 
 package types
 
-import "time"
+import (
+	"encoding/json"
+	"errors"
+	"time"
+)
 
 //=============================================================================
 //===
@@ -34,6 +38,18 @@ import "time"
 
 type TradingSession struct {
 	Slots []*TradingSlot `json:"slots"`
+}
+
+//=============================================================================
+
+func NewTradingSession(config string) (*TradingSession, error) {
+	var sess TradingSession
+	err := json.Unmarshal([]byte(config), &sess)
+	if err != nil {
+		return nil, errors.New("session is not a valid JDON: " + config)
+	}
+
+	return &sess, nil
 }
 
 //=============================================================================
