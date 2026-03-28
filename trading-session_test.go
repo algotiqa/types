@@ -129,6 +129,32 @@ func TestGranularity(t *testing.T) {
 }
 
 //=============================================================================
+
+func TestTradingSlot(t *testing.T) {
+	d    := date(2026, 3, 23, 12, 0) //--- Monday
+	slot := ts.FindSlot(d)
+	if slot == nil {
+		t.Errorf("TradingSlot not found")
+	} else if slot.Day != 0 {
+		t.Errorf("Bad tradingslot day: expected %v but got %v", d, slot.Day)
+	}
+
+	d = date(2026, 3, 23, 19, 0) //--- Monday
+	slot = ts.FindSlot(d)
+	if slot == nil {
+		t.Errorf("TradingSlot not found")
+	} else if slot.Day != 1 {
+		t.Errorf("Bad tradingslot day: expected %v but got %v", d, slot.Day)
+	}
+
+	d = date(2026, 3, 23, 16, 30) //--- Monday
+	slot = ts.FindSlot(d)
+	if slot != nil {
+		t.Errorf("TradingSlot should have been null")
+	}
+}
+
+//=============================================================================
 //===
 //=== Private functions
 //===

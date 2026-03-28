@@ -127,6 +127,22 @@ func (ts *TradingSession) crossSlots(prev time.Time, next time.Time, endSession 
 }
 
 //=============================================================================
+
+func (ts *TradingSession) FindSlot(t time.Time) *TradingSlot {
+	ph, pm, _ := t.Clock()
+	dayTime := NewTime(ph, pm)
+	dayWeek := int(t.Weekday())
+
+	for _, s := range ts.Slots {
+		if s.IsInside(dayWeek, dayTime) {
+			return s
+		}
+	}
+
+	return nil
+}
+
+//=============================================================================
 //===
 //=== TradingSlot
 //===
@@ -146,6 +162,7 @@ func (s *TradingSlot) IsInside(dow int, t Time) bool {
 		if s.Day == dow {
 			return s.Open < t && t <= s.Close
 		}
+		return false
 	}
 
 	if s.Open > s.Close {
