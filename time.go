@@ -83,6 +83,15 @@ func (t Time) IsValid() bool {
 
 //=============================================================================
 
+func (t Time) AsMinutes() int {
+	hh := int(t / 100)
+	mm := int(t % 100)
+
+	return hh * 60 + mm
+}
+
+//=============================================================================
+
 func (t Time) AddMinutes(mins int) Time {
 	totMins := t.Hour()*60 + t.Minute()
 	finMins := totMins + mins
