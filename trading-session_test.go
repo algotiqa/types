@@ -156,14 +156,14 @@ func TestTradingSlot(t *testing.T) {
 
 //=============================================================================
 
-func TestMinutesSinceStartNextDay(t *testing.T) {
+func TestMinutesSinceOpenNextDay(t *testing.T) {
 	d    := date(2026, 3, 23, 12, 0) //--- Monday
 	slot := ts.FindSlot(d)
 	if slot == nil {
 		t.Errorf("TradingSlot not found")
 	} else {
 		exp := 1140
-		mm  := slot.MinutesSinceStart(d)
+		mm  := slot.MinutesSinceOpen(d)
 		if mm != exp {
 			t.Errorf("Bad minutes since start: expected %v but got %v", exp, mm)
 		}
@@ -172,14 +172,14 @@ func TestMinutesSinceStartNextDay(t *testing.T) {
 
 //=============================================================================
 
-func TestMinutesSinceStartSameDay(t *testing.T) {
+func TestMinutesSinceOpenSameDay(t *testing.T) {
 	d    := date(2026, 3, 22, 19, 23) //--- Sunday
 	slot := ts.FindSlot(d)
 	if slot == nil {
 		t.Errorf("TradingSlot not found")
 	} else {
 		exp := 143
-		mm  := slot.MinutesSinceStart(d)
+		mm  := slot.MinutesSinceOpen(d)
 		if mm != exp {
 			t.Errorf("Bad minutes since start: expected %v but got %v", exp, mm)
 		}

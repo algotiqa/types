@@ -174,7 +174,7 @@ func (s *TradingSlot) IsInside(dow int, t Time) bool {
 
 //=============================================================================
 
-func (s *TradingSlot) MinutesSinceStart(t time.Time) int {
+func (s *TradingSlot) MinutesSinceOpen(t time.Time) int {
 	ph, pm, _ := t.Clock()
 	dayTime := NewTime(ph, pm)
 	dayWeek := int(t.Weekday())
