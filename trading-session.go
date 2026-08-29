@@ -31,7 +31,7 @@ func NewTradingSession(config string) (*TradingSession, error) {
 	var sess TradingSession
 	err := json.Unmarshal([]byte(config), &sess)
 	if err != nil {
-		return nil, errors.New("session is not a valid JDON: " + config)
+		return nil, errors.New("session is not a valid JSON: " + config)
 	}
 
 	return &sess, nil
